@@ -1,0 +1,45 @@
+body {
+  background-color: #FFFFFF
+}
+
+.warning {
+  background: rgb(223, 117, 20);
+}
+
+.center {
+  justify-content: center;
+  text-align: center;
+}
+
+table.records-table {
+  width: 100%;
+}
+
+
+.record {
+  width: 100%;
+}
+
+.left
+.right {
+    width: 0%;
+}
+
+.hidden {
+    visibility: none
+}
+
+.squareContainer {
+  background-color: red;
+  width: 100%;
+  padding-top: 100%; /* 1:1 Aspect Ratio */
+  position: relative; /* If you want text inside of it */
+}
+
+.square {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
