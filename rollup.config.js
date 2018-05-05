@@ -1,42 +1,48 @@
-import uglify from "rollup-plugin-uglify";
-import vue from "rollup-plugin-vue";
-import resolve from "rollup-plugin-node-resolve";
-import css from "rollup-plugin-postcss";
-import replace from "rollup-plugin-replace";
+import rollup from "rollup";
+import clean from "rollup-plugin-cleaner";
+import nodeBuiltins from "rollup-plugin-node-builtins";
+import nodeResolve from "rollup-plugin-node-resolve";
+import babel from "rollup-plugin-babel";
 import commonjs from "rollup-plugin-commonjs";
-import copy from "rollup-plugin-cpy";
-import cleaner from "rollup-plugin-cleaner";
+import replace from "rollup-plugin-replace";
+import css from "rollup-plugin-postcss";
+import copy from "rollup-plugin-copy";
 import serve from "rollup-plugin-serve";
 
-const production = !process.env.ROLLUP_WATCH;
+const production = false;
+
+const build = production ? rollup.rollup : rollup.watch;
 
 export default {
-  input: "src/main/js/snapkin.js",
+  input: "src/main/snapkin.js",
   output: {
-    file: "build/snapkin.js",
-    format: "iife", // immediately-invoked function expression — suitable for <script> tags
+    file: "dist/snapkin.js",
+    format: "iife",
     sourcemap: true
   },
+  watch: {
+    include: ["src/main/**/*"]
+  },
   plugins: [
-    /** 0 - common utilities **/
-    resolve(),
+    clean({ targets: ["dist"] }),
+    copy({
+      "src/main/index.html": "dist/index.html",
+      "src/main/records.json": "dist/records.json"
+    }),
+    nodeBuiltins(),
+    nodeResolve(),
+    css({ extract: true, modules: true }),
+    babel({
+      babelrc: false,
+      exclude: "node_modules/**",
+      presets: ["react"]
+    }),
     commonjs(),
     replace({
       "process.env.NODE_ENV": JSON.stringify(
         production ? "production" : "development"
-      ),
-      "process.env.VUE_ENV": JSON.stringify("browser")
+      )
     }),
-    /** 1 - cleanup **/
-    cleaner({ targets: ["./build"] }),
-    /** 2 - build **/
-    copy({
-      files: ["src/main/resources/*"],
-      dest: "build"
-    }),
-    css({ preset: 'default' }),
-    vue({ css: true }),
-    /** 3 - grande finale **/
-    production ? uglify() : serve("build") // minify for production, serve for develop
+    production ? uglify() : serve("dist")
   ]
 };
